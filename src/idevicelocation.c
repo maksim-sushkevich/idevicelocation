@@ -33,7 +33,7 @@ static void print_usage(int argc, char **argv)
 	char *name = NULL;
 
 	name = strrchr(argv[0], '/');
-    printf("Set Geo Location in iOS devices.\n\n");
+    printf("Set Geo Location in iOS devices. Devices conected over WiFi are supported\n\n");
 	printf("Usage: %s [OPTIONS] LATITUDE LONGITUDE\n\n", (name ? name + 1 : argv[0]));
     printf(" The following OPTIONS are accepted:\n");
 	printf
