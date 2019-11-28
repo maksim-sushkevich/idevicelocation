@@ -78,7 +78,7 @@ static void parse_opts(int argc, char **argv)
                 exit(2);
         }
 	}
-    
+
     if (!stop && (argc - optind) < 2) {
         printf("ERROR: You need to specify LATITUDE and LONGITUDE\n\n");
         print_usage(argc, argv);
@@ -96,15 +96,17 @@ int main(int argc, char **argv)
     char *lat = NULL;
     char *lng = NULL;
 	int res = 0;
-    
+
+    enum idevice_options lookup_opts = IDEVICE_LOOKUP_USBMUX | IDEVICE_LOOKUP_NETWORK;
+
 	parse_opts(argc, argv);
-    
+
     if (!stop) {
         lat = (argv+optind)[0];
         lng = (argv+optind+1)[0];
     }
-    
-	if (IDEVICE_E_SUCCESS != idevice_new(&phone, udid)) {
+
+	if (IDEVICE_E_SUCCESS != idevice_new_with_options(&phone, udid, lookup_opts)) {
 		fprintf(stderr, "No iOS device found, is it plugged in?\n");
 		return EXIT_FAILURE;
 	}
@@ -116,17 +118,17 @@ int main(int argc, char **argv)
 		fprintf(stderr, "Could not connect to lockdownd. Exiting.\n");
 		goto leave_cleanup;
 	}
-    
+
     if ((lockdownd_start_service(client, "com.apple.dt.simulatelocation",  &service) != LOCKDOWN_E_SUCCESS) || !service) {
              fprintf(stderr,  "Could not start com.apple.dt.simulatelocation!\n");
              goto leave_cleanup;
     }
-    
+
     service_error_t se = service_client_new(phone, service, &service_client);
     if (se) {
         printf("Could not crate Service Client.\n");
     } else {
-        
+
         service_error_t e;
         uint32_t sent = 0;
 
@@ -174,7 +176,7 @@ int main(int argc, char **argv)
             } while (true);
         }
     }
-    
+
     if (service_client) {
         service_client_free(service_client);
     }
@@ -183,15 +185,15 @@ int main(int argc, char **argv)
         lockdownd_service_descriptor_free(service);
     }
     service = NULL;
-    
+
 	setbuf(stdout, NULL);
-    
+
 	if (client) {
 		/* not needed anymore */
 		lockdownd_client_free(client);
 		client = NULL;
 	}
-    
+
 leave_cleanup:
 	if (client) {
 		lockdownd_client_free(client);
